@@ -56,7 +56,7 @@
         "topic_dedup": true
       },
       "tech-blog": {
-        "threshold": 6.0,
+        "threshold": 4.0,
         "topic_dedup": false
       },
       "finance-news": {
@@ -215,7 +215,7 @@
       {
         "name": "IT之家",
         "url": "https://www.ithome.com/rss/",
-        "enabled": true,
+        "enabled": false,
         "category": "tech-news-zh",
         "profile": "tech-news"
       },
