@@ -599,6 +599,29 @@ class DigestConfig(BaseModel):
         return value
 
 
+class PrefilterConfig(BaseModel):
+    """Deterministic pre-scoring applied before any AI call.
+
+    Decides which items are worth the (paid, slow) analysis stage using a
+    reproducible rule instead of asking the model about every item:
+
+        score = keyword_weight * keyword_hits
+              + source_weights[source]
+              + freshness_weight * 0.5 ** (age_hours / half_life_hours)
+              + engagement_weight * log10(1 + engagement)
+    """
+
+    enabled: bool = False
+    max_items: int = Field(default=40, gt=0)
+    min_score: float = Field(default=0.0, ge=0)
+    keywords: Dict[str, float] = Field(default_factory=dict)
+    source_weights: Dict[str, float] = Field(default_factory=dict)
+    freshness_half_life_hours: float = Field(default=24.0, gt=0)
+    keyword_weight: float = Field(default=1.0, ge=0)
+    freshness_weight: float = Field(default=2.0, ge=0)
+    engagement_weight: float = Field(default=1.0, ge=0)
+
+
 class Config(BaseModel):
     """Main configuration model."""
 
@@ -609,6 +632,7 @@ class Config(BaseModel):
     collection: CollectionConfig = Field(default_factory=CollectionConfig)
     digest: DigestConfig = Field(default_factory=DigestConfig)
     processing: ProcessingConfig = Field(default_factory=ProcessingConfig)
+    prefilter: Optional[PrefilterConfig] = None
     display: DisplayConfig = Field(default_factory=DisplayConfig)
     extractors: Dict[str, ExtractorConfig] = Field(default_factory=dict)
     email: Optional[EmailConfig] = None

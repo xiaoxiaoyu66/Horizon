@@ -37,6 +37,7 @@ from .ai.enricher import ContentEnricher, EnrichmentBatchResult
 from .ai.tokens import get_usage_snapshot
 from .processing import ProfileRegistry
 from .processing.content import COMMENTS_MARKER, split_content
+from .processing.prefilter import RulePrefilter
 from .processing.tools import ToolRegistry
 
 
@@ -288,7 +289,10 @@ class HorizonOrchestrator:
                     f"→ {len(merged_items)} unique items\n"
                 )
 
-            # 4. Analyze with AI
+            # 4. Deterministic pre-filter (no LLM): cap what reaches the AI stage
+            merged_items = self.prefilter_items(merged_items)
+
+            # 5. Analyze with AI
             analyzed_items = await self.analyze_items(merged_items)
             self.console.print(
                 f"{self.icons['ai']} Analyzed {len(analyzed_items)} items with AI\n"
@@ -1129,6 +1133,29 @@ class HorizonOrchestrator:
             )
         self.console.print("")
         return result
+
+    def prefilter_items(self, items: List[ContentItem]) -> List[ContentItem]:
+        """Drop low-signal items before the paid AI stage.
+
+        Deterministic and offline: the ranking comes from the rule in
+        ``src/processing/prefilter.py``, never from the model. Disabled unless
+        ``prefilter.enabled`` is set in the runtime configuration.
+        """
+        cfg = self.config.prefilter
+        if not cfg or not cfg.enabled or not items:
+            return items
+
+        kept, dropped = RulePrefilter(cfg).apply(items)
+        self.console.print(
+            f"{self.icons['filter']} Rule prefilter kept {len(kept)}/{len(items)} items "
+            f"(dropped {len(dropped)} before AI analysis)\n"
+        )
+        for item, score in dropped[:5]:
+            self.console.print(f"      [dim]drop {score:.2f} · {item.title[:60]}[/dim]")
+        if len(dropped) > 5:
+            self.console.print(f"      [dim]... and {len(dropped) - 5} more[/dim]")
+        self.console.print("")
+        return kept
 
     async def analyze_items(self, items: List[ContentItem]) -> List[ContentItem]:
         """Analyze content items with AI.
