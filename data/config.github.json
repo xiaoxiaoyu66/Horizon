@@ -14,6 +14,39 @@
     "analysis_concurrency": 5,
     "enrichment_concurrency": 5
   },
+  "prefilter": {
+    "enabled": true,
+    "max_items": 30,
+    "min_score": 0,
+    "keyword_weight": 1.0,
+    "freshness_weight": 2.0,
+    "freshness_half_life_hours": 24,
+    "engagement_weight": 1.0,
+    "keywords": {
+      "agent": 1.0,
+      "release": 1.0,
+      "benchmark": 1.0,
+      "llm": 1.0,
+      "open source": 1.0,
+      "rag": 0.8,
+      "inference": 0.8,
+      "model": 0.5,
+      "context": 0.5,
+      "pricing": 0.5
+    },
+    "source_weights": {
+      "github": 2.0,
+      "hackernews": 1.5,
+      "ossinsight": 1.5,
+      "rss": 1.0,
+      "reddit": 1.0,
+      "google_news": 1.0,
+      "gdelt": 1.0,
+      "openbb": 1.0,
+      "twitter": 1.2,
+      "telegram": 0.8
+    }
+  },
   "processing": {
     "profiles_dir": "profiles",
     "default_profile": "tech-news",
@@ -23,7 +56,7 @@
         "topic_dedup": true
       },
       "tech-blog": {
-        "threshold": 4.0,
+        "threshold": 6.0,
         "topic_dedup": false
       },
       "finance-news": {
@@ -58,6 +91,34 @@
         "type": "repo_releases",
         "owner": "triton-lang",
         "repo": "triton",
+        "enabled": true,
+        "profile": "tech-news"
+      },
+      {
+        "type": "repo_releases",
+        "owner": "ollama",
+        "repo": "ollama",
+        "enabled": true,
+        "profile": "tech-news"
+      },
+      {
+        "type": "repo_releases",
+        "owner": "open-webui",
+        "repo": "open-webui",
+        "enabled": true,
+        "profile": "tech-news"
+      },
+      {
+        "type": "repo_releases",
+        "owner": "langchain-ai",
+        "repo": "langchain",
+        "enabled": true,
+        "profile": "tech-news"
+      },
+      {
+        "type": "repo_releases",
+        "owner": "modelcontextprotocol",
+        "repo": "servers",
         "enabled": true,
         "profile": "tech-news"
       }
@@ -117,9 +178,76 @@
       {
         "name": "LWN.net",
         "url": "https://lwn.net/headlines/full_text?key=${LWN_KEY}",
-        "enabled": true,
+        "enabled": false,
         "category": "linux-kernel",
         "profile": "tech-news"
+      },
+      {
+        "name": "量子位",
+        "url": "https://www.qbitai.com/feed",
+        "enabled": true,
+        "category": "ai-news-zh",
+        "profile": "tech-news",
+        "content_extractor": "trafilatura"
+      },
+      {
+        "name": "InfoQ 中文",
+        "url": "https://www.infoq.cn/feed",
+        "enabled": true,
+        "category": "software-engineering",
+        "profile": "tech-blog",
+        "content_extractor": "trafilatura"
+      },
+      {
+        "name": "开源中国",
+        "url": "https://www.oschina.net/news/rss",
+        "enabled": true,
+        "category": "open-source-zh",
+        "profile": "tech-news"
+      },
+      {
+        "name": "Solidot",
+        "url": "https://www.solidot.org/index.rss",
+        "enabled": true,
+        "category": "tech-news-zh",
+        "profile": "tech-news"
+      },
+      {
+        "name": "IT之家",
+        "url": "https://www.ithome.com/rss/",
+        "enabled": true,
+        "category": "tech-news-zh",
+        "profile": "tech-news"
+      },
+      {
+        "name": "阮一峰的网络日志",
+        "url": "https://www.ruanyifeng.com/blog/atom.xml",
+        "enabled": true,
+        "category": "software-engineering",
+        "profile": "tech-blog",
+        "content_extractor": "trafilatura"
+      },
+      {
+        "name": "少数派",
+        "url": "https://sspai.com/feed",
+        "enabled": true,
+        "category": "productivity",
+        "profile": "tech-news"
+      },
+      {
+        "name": "GitHub Blog",
+        "url": "https://github.blog/feed/",
+        "enabled": true,
+        "category": "open-source",
+        "profile": "tech-news"
+      },
+      {
+        "name": "AWS Machine Learning Blog",
+        "url": "https://aws.amazon.com/blogs/machine-learning/feed/",
+        "enabled": true,
+        "category": "machine-learning",
+        "profile": "tech-blog",
+        "content_extractor": "trafilatura"
       }
     ],
     "reddit": {
@@ -163,7 +291,7 @@
     "time_window_hours": 24
   },
   "digest": {
-    "max_items": null,
+    "max_items": 12,
     "profile_order": [
       "tech-news",
       "tech-blog",
